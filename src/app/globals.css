@@ -1,0 +1,18 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: white;
+  --color-fg: black;
+
+  color-scheme: light;
+}
+
+body {
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  margin: 0;
+}
