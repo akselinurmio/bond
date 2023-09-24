@@ -5,7 +5,7 @@
 }
 
 :root {
-  --color-bg: white;
+  --color-bg: rgb(252, 255, 164);
   --color-fg: black;
 
   color-scheme: light;

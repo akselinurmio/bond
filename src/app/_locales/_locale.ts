@@ -2,7 +2,11 @@ import { headers } from "next/headers";
 import "server-only";
 
 export function locale() {
-  const hostname = headers().get("host")?.split(":")[0];
+  const hostname = headers().get("host");
 
-  return hostname && hostname === "whoisyourfavorite.bond" ? "en" : "fi";
+  if (hostname && hostname.startsWith("whoisyourfavorite.bond")) {
+    return "en";
+  }
+
+  return "fi";
 }
