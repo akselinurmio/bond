@@ -6,6 +6,24 @@ import { getVotesForBond } from "app/services/votes";
 import { locale } from "app/utils/locale";
 import { TmdbConfigProvider } from "./contexts/TmdbConfigProvider";
 import styles from "./page.module.css";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const language = locale();
+
+  return {
+    alternates: {
+      canonical:
+        language === "fi"
+          ? "https://lemppari.bond/"
+          : "https://whoisyourfavorite.bond/",
+      languages: {
+        en: "https://whoisyourfavorite.bond/",
+        fi: "https://lemppari.bond/",
+      },
+    },
+  };
+}
 
 type BondTuples = [id: number, details: Person, votes: number];
 

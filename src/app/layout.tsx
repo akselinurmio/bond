@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { locale } from "./utils/locale";
-import "./globals.css";
-import styles from "./layout.module.css";
-import { Logo } from "./assets/Logo";
-import { LanguageProvider } from "./contexts/LanguageContext";
 import Link from "next/link";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import "./globals.css";
+import { LanguagePicker } from "./language/LanguagePicker";
+import styles from "./layout.module.css";
+import { Logo } from "./logo/Logo";
+import { locale } from "./utils/locale";
 
 export const revalidate = 3600;
 
@@ -21,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: siteName,
       template: `%s | ${siteName}`,
     },
+    icons: [{ rel: "icon", url: "/favicon.png" }],
   };
 }
 
@@ -34,7 +36,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <LanguageProvider language={language}>
           <div className={styles.content}>
             <header className={styles.header}>
-              <Logo siteName={siteName} locale={language} />
+              <LanguagePicker />
+              <Logo siteName={siteName} />
             </header>
             <nav className={styles.sidebar}></nav>
             <main className={styles.main}>{children}</main>
@@ -43,7 +46,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {language === "fi" ? "Etusivu" : "Front page"}
               </Link>
               {" | "}
-              <Link href="/about">
+              <Link href={language === "fi" ? "/tietoa" : "/about"}>
                 {language === "fi" ? "Tietoa sivusta" : "About the page"}
               </Link>
             </footer>
