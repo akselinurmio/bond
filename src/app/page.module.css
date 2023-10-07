@@ -1,0 +1,8 @@
+.bonds {
+  display: grid;
+  column-gap: 0.5rem;
+  row-gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  justify-content: center;
+  align-content: center;
+}

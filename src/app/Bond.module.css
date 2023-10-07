@@ -1,0 +1,12 @@
+.image {
+  display: block;
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+}
+
+.name {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}

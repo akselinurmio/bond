@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { locale } from "./_locales/_locale";
+import { locale } from "./utils/locale";
 import "./globals.css";
 import styles from "./layout.module.css";
-import { Logo } from "./_assets/Logo";
+import { Logo } from "./assets/Logo";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import Link from "next/link";
+
+export const revalidate = 3600;
 
 const siteNames = {
   en: "Who’s your favorite Bond?",
@@ -17,27 +21,34 @@ export async function generateMetadata(): Promise<Metadata> {
       default: siteName,
       template: `%s | ${siteName}`,
     },
-    viewport: {
-      initialScale: 1,
-      width: 1024,
-    },
   };
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const siteName = siteNames[locale()];
+  const language = locale();
+  const siteName = siteNames[language];
 
   return (
-    <html lang={locale()}>
+    <html lang={language}>
       <body>
-        <div className={styles.content}>
-          <header className={styles.header}>
-            <Logo siteName={siteName} locale={locale()} />
-          </header>
-          <nav className={styles.sidebar}></nav>
-          <main className={styles.main}>{children}</main>
-          <footer className={styles.footer}></footer>
-        </div>
+        <LanguageProvider language={language}>
+          <div className={styles.content}>
+            <header className={styles.header}>
+              <Logo siteName={siteName} locale={language} />
+            </header>
+            <nav className={styles.sidebar}></nav>
+            <main className={styles.main}>{children}</main>
+            <footer className={styles.footer}>
+              <Link href="/">
+                {language === "fi" ? "Etusivu" : "Front page"}
+              </Link>
+              {" | "}
+              <Link href="/about">
+                {language === "fi" ? "Tietoa sivusta" : "About the page"}
+              </Link>
+            </footer>
+          </div>
+        </LanguageProvider>
       </body>
     </html>
   );
