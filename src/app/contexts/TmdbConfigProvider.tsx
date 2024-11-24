@@ -21,25 +21,23 @@ export function TmdbConfigProvider({ children, configuration }: ProviderProps) {
 export function useImageUrl() {
   const config = useContext(ConfigContext);
 
-  return (path: string, targetWidth: number): string => {
+  return (path: string): string => {
     if (!config) throw new Error("Image config not available");
 
     const {
       images: { secure_base_url: baseUrl, profile_sizes: sizes },
     } = config;
 
-    const width = sizes
-      .reduce((widths: number[], size: string): number[] => {
-        const match = /^w(\d+)$/.exec(size);
-        if (match && match[1]) widths.push(parseInt(match[1]));
-        return widths;
-      }, [])
-      .reduce((widthA, widthB) =>
-        Math.abs(widthB - targetWidth) < Math.abs(widthA - targetWidth)
-          ? widthB
-          : widthA,
-      );
+    const size = sizes.reduce((sizeA, sizeB) => {
+      const sizeAInt = parseInt(sizeA.replace(/\D/g, ""), 10);
+      const sizeBInt = parseInt(sizeB.replace(/\D/g, ""), 10);
 
-    return `${baseUrl}w${width}${path}`;
+      if (isNaN(sizeAInt)) return sizeB;
+      if (isNaN(sizeBInt)) return sizeA;
+
+      return sizeAInt > sizeBInt ? sizeA : sizeB;
+    });
+
+    return `${baseUrl}${size}${path}`;
   };
 }

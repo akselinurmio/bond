@@ -27,7 +27,7 @@ export function Bond({ details, id, votes }: Props) {
       {!details.profile_path || (
         <img
           alt={details.name}
-          src={getImageUrl(details.profile_path, 185)}
+          src={getImageUrl(details.profile_path)}
           width={185}
           height={278}
           className={styles.image}
