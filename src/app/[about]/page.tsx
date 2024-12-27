@@ -8,14 +8,14 @@ const localeSegment = {
   fi: "tietoa",
 } as const;
 
-type PageProps = { params: { about: string } };
+type PageProps = { params: Promise<{ about: string }> };
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const language = locale();
+  const language = await locale();
 
-  if (params.about !== localeSegment[language]) return {};
+  if ((await params).about !== localeSegment[language]) return {};
 
   return {
     title: language === "fi" ? "Tietoa" : "About",
@@ -32,10 +32,10 @@ export async function generateMetadata({
   };
 }
 
-export default function About({ params }: { params: { about: string } }) {
-  const language = locale();
+export default async function About({ params }: PageProps) {
+  const language = await locale();
 
-  if (params.about !== localeSegment[language]) notFound();
+  if ((await params).about !== localeSegment[language]) notFound();
 
   return (
     <>

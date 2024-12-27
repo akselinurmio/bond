@@ -56,7 +56,9 @@ export async function getConfiguration(): Promise<Configuration> {
 export async function getPerson(id: number, language: string): Promise<Person> {
   const url = `${baseUrl}/3/person/${id}?language=${language}`;
 
-  const response = await fetch(url, { headers: getHeaders() });
+  const response = await fetch(url, {
+    headers: getHeaders(),
+  });
 
   if (!response.ok)
     throw new Error(`Actor fetch failed: ${await response.text()}`);

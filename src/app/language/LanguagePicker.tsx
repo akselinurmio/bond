@@ -4,8 +4,8 @@ import flagFi from "app/assets/Animated-Flag-Finland.gif";
 import flagUk from "app/assets/Animated-Flag-United-Kingdom.gif";
 import styles from "./LanguagePicker.module.css";
 
-export function LanguagePicker() {
-  const language = locale();
+export async function LanguagePicker() {
+  const language = await locale();
 
   return (
     <a

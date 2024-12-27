@@ -1,15 +1,14 @@
 import { Bond } from "app/Bond";
 import { bondActorTmdbIds } from "app/constants";
-import type { Person } from "app/services/tmdb";
 import * as tmdb from "app/services/tmdb";
-import { getVotesForBond } from "app/services/votes";
+import { getVotesForAllBonds } from "app/services/votes";
 import { locale } from "app/utils/locale";
-import { TmdbConfigProvider } from "./contexts/TmdbConfigProvider";
 import styles from "./page.module.css";
 import { Metadata } from "next";
+import { getProfileImageUrlPrefix } from "app/utils/tmdb";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const language = locale();
+  const language = await locale();
 
   return {
     alternates: {
@@ -25,30 +24,32 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-type BondTuples = [id: number, details: Person, votes: number];
-
 export default async function Home() {
-  const language = locale();
+  const language = await locale();
 
-  const bondsPromise = Promise.all(
-    bondActorTmdbIds.map(
-      (id): Promise<BondTuples> =>
-        Promise.all([id, tmdb.getPerson(id, language), getVotesForBond(id)]),
-    ),
+  const actorsPromise = Promise.all(
+    Array.from(bondActorTmdbIds, (id) => tmdb.getPerson(id, language)),
   );
 
-  const [config, bondTuples] = await Promise.all([
+  const [config, actors, votes] = await Promise.all([
     tmdb.getConfiguration(),
-    bondsPromise,
+    actorsPromise,
+    getVotesForAllBonds(),
   ]);
+
+  const profileImageUrlPrefix = getProfileImageUrlPrefix(config);
 
   return (
     <section className={styles.bonds}>
-      <TmdbConfigProvider configuration={config}>
-        {bondTuples.map(([id, details, votes]) => (
-          <Bond key={id} details={details} id={id} votes={votes} />
-        ))}
-      </TmdbConfigProvider>
+      {actors.map((actor) => (
+        <Bond
+          key={actor.id}
+          details={actor}
+          imageUrlPrefix={profileImageUrlPrefix}
+          language={language}
+          votes={votes.get(actor.id) || 0}
+        />
+      ))}
     </section>
   );
 }

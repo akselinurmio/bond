@@ -1,7 +1,7 @@
 import { locale } from "./utils/locale";
 
-export default function NotFound() {
-  const language = locale();
+export default async function NotFound() {
+  const language = await locale();
 
   return (
     <div>

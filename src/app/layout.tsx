@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LanguageProvider } from "./contexts/LanguageContext";
 import "./globals.css";
 import { LanguagePicker } from "./language/LanguagePicker";
 import styles from "./layout.module.css";
@@ -15,7 +14,7 @@ const siteNames = {
 } as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = siteNames[locale()];
+  const siteName = siteNames[await locale()];
 
   return {
     title: {
@@ -26,32 +25,32 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const language = locale();
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const language = await locale();
   const siteName = siteNames[language];
 
   return (
     <html lang={language}>
       <body>
-        <LanguageProvider language={language}>
-          <div className={styles.content}>
-            <header className={styles.header}>
-              <LanguagePicker />
-              <Logo siteName={siteName} />
-            </header>
-            <nav className={styles.sidebar}></nav>
-            <main className={styles.main}>{children}</main>
-            <footer className={styles.footer}>
-              <Link href="/">
-                {language === "fi" ? "Etusivu" : "Front page"}
-              </Link>
-              {" | "}
-              <Link href={language === "fi" ? "/tietoa" : "/about"}>
-                {language === "fi" ? "Tietoa sivusta" : "About the page"}
-              </Link>
-            </footer>
-          </div>
-        </LanguageProvider>
+        <div className={styles.content}>
+          <header className={styles.header}>
+            <LanguagePicker />
+            <Logo siteName={siteName} />
+          </header>
+          <nav className={styles.sidebar}></nav>
+          <main className={styles.main}>{children}</main>
+          <footer className={styles.footer}>
+            <Link href="/">{language === "fi" ? "Etusivu" : "Front page"}</Link>
+            {" | "}
+            <Link href={language === "fi" ? "/tietoa" : "/about"}>
+              {language === "fi" ? "Tietoa sivusta" : "About the page"}
+            </Link>
+          </footer>
+        </div>
       </body>
     </html>
   );

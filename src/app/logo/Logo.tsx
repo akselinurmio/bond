@@ -7,8 +7,8 @@ type Props = {
   siteName: string;
 };
 
-export const Logo: React.FC<Props> = ({ siteName }) => {
-  const language = locale();
+export const Logo: React.FC<Props> = async ({ siteName }) => {
+  const language = await locale();
 
   return (
     <Link href="/">

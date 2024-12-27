@@ -1,82 +1,63 @@
 "use client";
 
-import { useLanguage } from "app/contexts/LanguageContext";
 import type { Person } from "app/services/tmdb";
-import { useState } from "react";
 import styles from "./Bond.module.css";
-import { useImageUrl } from "./contexts/TmdbConfigProvider";
+import { VoteActionState, voteForActor } from "app/actions";
+import { useActionState, useOptimistic } from "react";
+
+const initialState: VoteActionState = { error: null, voted: false };
 
 type Props = {
   details: Person;
-  id: number;
+  imageUrlPrefix: string;
+  language: "en" | "fi";
   votes: number;
 };
 
-export function Bond({ details, id, votes }: Props) {
-  const language = useLanguage();
-  const [error, setError] = useState<string | null>(null);
-  const [optimisticVotes, setOptimisticVotes] = useState(votes);
-  const getImageUrl = useImageUrl();
+export function Bond({ details, imageUrlPrefix, language, votes }: Props) {
+  const [state, formAction, pending] = useActionState(
+    voteForActor,
+    initialState,
+  );
+  const { error } = state;
+  const voted = pending || state.voted;
 
-  const titleId = `bond-${id}`;
+  const titleId = `bond-${details.id}`;
 
   const lastName = details.name.trim().split(" ").at(-1);
 
   return (
     <article aria-labelledby={titleId}>
-      {!details.profile_path || (
+      {details.profile_path ? (
         <img
           alt={details.name}
-          src={getImageUrl(details.profile_path)}
+          src={imageUrlPrefix + details.profile_path}
           width={185}
           height={278}
           className={styles.image}
         />
-      )}
+      ) : null}
 
       <h3 id={titleId} translate="no" className={styles.name}>
         {details.name}
       </h3>
 
-      <p>{`${optimisticVotes.toLocaleString(language)} ${
+      <p>{`${(votes + +voted).toLocaleString(language)} ${
         language === "fi"
-          ? optimisticVotes === 1
+          ? votes + +voted === 1
             ? "ääni"
             : "ääntä"
-          : optimisticVotes === 1
-          ? "vote"
-          : "votes"
+          : votes + +voted === 1
+            ? "vote"
+            : "votes"
       }`}</p>
-      <form
-        action="/vote"
-        method="POST"
-        onSubmit={async (e) => {
-          e.preventDefault();
-
-          setError(null);
-          setOptimisticVotes((state) => state + 1);
-
-          const form = e.currentTarget;
-          const response = await fetch(form.action, {
-            method: form.method,
-            body: new FormData(form),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            if (data.error) setError(data.error);
-            setOptimisticVotes((state) => state - 1);
-          }
-        }}
-      >
-        <input type="hidden" name="id" value={id} />
-        <input
-          type="submit"
-          value={`${lastName} ${
+      <form action={formAction}>
+        <input type="hidden" name="id" value={details.id} />
+        <button type="submit" disabled={pending || voted}>
+          {`${lastName} ${
             language === "fi" ? "on mun lemppari" : "is my favorite"
           }`}
-        />
+        </button>
         {error && (
           <output>
             <p>{error}</p>
