@@ -44,6 +44,7 @@ function getHeaders() {
 
 export async function getConfiguration(): Promise<Configuration> {
   const response = await fetch(`${baseUrl}/3/configuration`, {
+    cache: "force-cache",
     headers: getHeaders(),
   });
 
@@ -57,6 +58,7 @@ export async function getPerson(id: number, language: string): Promise<Person> {
   const url = `${baseUrl}/3/person/${id}?language=${language}`;
 
   const response = await fetch(url, {
+    cache: "force-cache",
     headers: getHeaders(),
   });
 

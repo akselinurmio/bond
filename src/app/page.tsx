@@ -1,4 +1,4 @@
-import { Bond } from "app/Bond";
+import { Actor } from "app/Actor";
 import { bondActorTmdbIds } from "app/constants";
 import * as tmdb from "app/services/tmdb";
 import { getVotesForAllBonds } from "app/services/votes";
@@ -42,9 +42,9 @@ export default async function Home() {
   return (
     <section className={styles.bonds}>
       {actors.map((actor) => (
-        <Bond
+        <Actor
           key={actor.id}
-          details={actor}
+          data={actor}
           imageUrlPrefix={profileImageUrlPrefix}
           language={language}
           votes={votes.get(actor.id) || 0}
