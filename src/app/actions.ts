@@ -1,11 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { bondActorTmdbIds } from "app/constants";
 import { locale } from "app/utils/locale";
-
-const prisma = new PrismaClient();
+import { prisma } from "./services/db";
 
 const actorIdSchema = z.coerce
   .number()
