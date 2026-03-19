@@ -1,4 +1,4 @@
-import { Configuration } from "app/services/tmdb";
+import type { Configuration } from "./tmdb";
 
 export function getProfileImageUrlPrefix(config: Configuration): string {
   const {

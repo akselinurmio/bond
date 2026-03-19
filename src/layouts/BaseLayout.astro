@@ -1,0 +1,27 @@
+---
+import "styles/globals.css";
+
+interface Props {
+  title: string;
+  canonical?: string | undefined;
+  alternates?: { en: string; fi: string } | undefined;
+}
+
+const { title, canonical, alternates } = Astro.props;
+const locale = Astro.currentLocale ?? "fi";
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.png" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {alternates && <link rel="alternate" hreflang="en" href={alternates.en} />}
+    {alternates && <link rel="alternate" hreflang="fi" href={alternates.fi} />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

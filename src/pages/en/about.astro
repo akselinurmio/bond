@@ -1,0 +1,22 @@
+---
+import LangLayout from "layouts/LangLayout.astro";
+---
+
+<LangLayout
+  title="About"
+  canonical="https://whoisyourfavorite.bond/about"
+  alternates={{ en: "https://whoisyourfavorite.bond/about", fi: "https://lemppari.bond/tietoa" }}
+>
+  <h1>About the page</h1>
+
+  <h2>Attribution</h2>
+
+  <p lang="en">
+    <a href="https://www.themoviedb.org/" target="_blank">
+      <img src="/tmdb.svg" alt="The Movie Database" width="248" height="18" />
+    </a>
+  </p>
+  <p lang="en">
+    This product uses the TMDB API but is not endorsed or certified by TMDB.
+  </p>
+</LangLayout>

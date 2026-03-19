@@ -1,0 +1,84 @@
+---
+interface Props {
+  actorId: number;
+  actorName: string;
+  language: "en" | "fi";
+  votes: number;
+}
+
+const { actorId, actorName, language, votes } = Astro.props;
+
+const lastName = actorName.trim().split(" ").at(-1);
+const buttonText = `${lastName} ${language === "fi" ? "on mun lemppari" : "is my favorite"}`;
+const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
+    ? votes === 1
+      ? "ääni"
+      : "ääntä"
+    : votes === 1
+      ? "vote"
+      : "votes"}`;
+---
+
+<form
+  class="vote-form"
+  method="POST"
+  action="/api/vote"
+  data-initial-votes={votes}
+  data-language={language}
+>
+  <p class="vote-count">{formattedVotes}</p>
+  <input type="hidden" name="id" value={actorId} />
+  <input type="hidden" name="language" value={language} />
+  <button type="submit">{buttonText}</button>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>(".vote-form").forEach((form) => {
+    const button = form.querySelector("button")!;
+    const countEl = form.querySelector(".vote-count")!;
+    const language = form.dataset.language;
+    let votes = Number(form.dataset.initialVotes);
+
+    function renderVoteCount(count: number): void {
+      countEl.textContent = `${count.toLocaleString(language)} ${
+        language === "fi"
+          ? count === 1
+            ? "ääni"
+            : "ääntä"
+          : count === 1
+            ? "vote"
+            : "votes"
+      }`;
+    }
+
+    function applyOptimisticVote(): void {
+      button.disabled = true;
+      votes++;
+      renderVoteCount(votes);
+    }
+
+    function revertOptimisticVote(): void {
+      votes--;
+      renderVoteCount(votes);
+      button.disabled = false;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      applyOptimisticVote();
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+
+        if (!res.ok) {
+          throw new Error("Vote failed");
+        }
+      } catch {
+        revertOptimisticVote();
+      }
+    });
+  });
+</script>

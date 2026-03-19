@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import { z } from "zod";
 
 const Configuration = z.object({
@@ -35,19 +34,16 @@ export type Person = z.infer<typeof Person>;
 const baseUrl = "https://api.themoviedb.org";
 
 function getHeaders() {
-  if (!process.env.TMDB_API_TOKEN) throw new Error("Missing TMDB API token");
+  if (!import.meta.env.TMDB_API_TOKEN)
+    throw new Error("Missing TMDB API token");
 
   return new Headers({
-    Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
+    Authorization: `Bearer ${import.meta.env.TMDB_API_TOKEN}`,
     Accept: "application/json",
   });
 }
 
 export async function getConfiguration(): Promise<Configuration> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("tmdb-config");
-
   const response = await fetch(`${baseUrl}/3/configuration`, {
     headers: getHeaders(),
   });
@@ -58,14 +54,7 @@ export async function getConfiguration(): Promise<Configuration> {
   return Configuration.parse(await response.json());
 }
 
-export async function getPerson(
-  id: number,
-  language: string,
-): Promise<Person> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("tmdb-person");
-
+export async function getPerson(id: number, language: string): Promise<Person> {
   const url = `${baseUrl}/3/person/${id}?language=${language}`;
 
   const response = await fetch(url, {

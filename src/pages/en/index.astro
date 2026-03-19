@@ -1,0 +1,77 @@
+---
+import LangLayout from "layouts/LangLayout.astro";
+import VoteForm from "components/VoteForm.astro";
+import { bondActorTmdbIds } from "lib/constants";
+import { getConfiguration, getPerson } from "lib/tmdb";
+import { getProfileImageUrlPrefix } from "lib/tmdb-utils";
+import { getVotesForAllBonds } from "lib/votes";
+
+const language = (Astro.currentLocale ?? "en") as "en" | "fi";
+
+const [config, actors, votes] = await Promise.all([
+  getConfiguration(),
+  Promise.all(
+    Array.from(bondActorTmdbIds, (id) => getPerson(id, language)),
+  ),
+  getVotesForAllBonds(),
+]);
+
+const profileImageUrlPrefix = getProfileImageUrlPrefix(config);
+---
+
+<LangLayout
+  canonical="https://whoisyourfavorite.bond/"
+  alternates={{ en: "https://whoisyourfavorite.bond/", fi: "https://lemppari.bond/" }}
+>
+  <section class="bonds">
+    {actors.map((actor) => {
+      const titleId = `bond-${actor.id}`;
+      return (
+        <article aria-labelledby={titleId}>
+          {actor.profile_path ? (
+            <img
+              alt={actor.name}
+              src={profileImageUrlPrefix + actor.profile_path}
+              width="185"
+              height="278"
+              class="bond-image"
+            />
+          ) : null}
+          <h3 id={titleId} translate="no" class="bond-name">
+            {actor.name}
+          </h3>
+          <VoteForm
+            actorId={actor.id}
+            actorName={actor.name}
+            language={language}
+            votes={votes.get(actor.id) || 0}
+          />
+        </article>
+      );
+    })}
+  </section>
+</LangLayout>
+
+<style>
+  .bonds {
+    display: grid;
+    column-gap: 0.5rem;
+    row-gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    justify-content: center;
+    align-content: center;
+  }
+
+  .bond-image {
+    display: block;
+    object-fit: contain;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .bond-name {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+</style>

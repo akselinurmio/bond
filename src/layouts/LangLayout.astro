@@ -1,0 +1,108 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title?: string;
+  canonical?: string;
+  alternates?: { en: string; fi: string };
+}
+
+const { title, canonical, alternates } = Astro.props;
+const locale = (Astro.currentLocale ?? "fi") as "en" | "fi";
+
+const siteNames = {
+  en: "Who's your favorite Bond?",
+  fi: "Kuka on sun lemppari Bond?",
+} as const;
+
+const siteName = siteNames[locale];
+const pageTitle = title ? `${title} | ${siteName}` : siteName;
+
+const otherLocaleUrl =
+  locale === "fi"
+    ? "https://whoisyourfavorite.bond/"
+    : "https://lemppari.bond/";
+const otherLocale = locale === "fi" ? "en" : "fi";
+const flagSrc =
+  locale === "fi"
+    ? "/Animated-Flag-United-Kingdom.gif"
+    : "/Animated-Flag-Finland.gif";
+const flagAlt = locale === "fi" ? "In English" : "Suomeksi";
+const logoSrc = locale === "fi" ? "/logo_fi.svg" : "/logo_en.svg";
+const logoWidth = locale === "fi" ? "753" : "758";
+
+const homeLabel = locale === "fi" ? "Etusivu" : "Front page";
+const aboutHref = locale === "fi" ? "/tietoa" : "/about";
+const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
+---
+
+<BaseLayout title={pageTitle} canonical={canonical} alternates={alternates}>
+  <div class="content">
+    <header class="header">
+      <a
+        href={otherLocaleUrl}
+        hreflang={otherLocale}
+        lang={otherLocale}
+        rel="alternate"
+      >
+        <img
+          src={flagSrc}
+          alt={flagAlt}
+          width="36"
+          height="24"
+          class="flag"
+        />
+      </a>
+      <a href="/">
+        <img
+          alt={siteName}
+          src={logoSrc}
+          width={logoWidth}
+          height="493"
+          class="logo"
+        />
+      </a>
+    </header>
+    <nav class="sidebar"></nav>
+    <main class="main">
+      <slot />
+    </main>
+    <footer class="footer">
+      <a href="/">{homeLabel}</a>
+      {" | "}
+      <a href={aboutHref}>{aboutLabel}</a>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .content {
+    background-color: azure;
+    display: grid;
+    gap: 0.25rem;
+    max-width: 64rem;
+  }
+
+  .header {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .main {
+    padding: 1rem;
+  }
+
+  .footer {
+    padding: 1rem;
+  }
+
+  .flag {
+    float: right;
+  }
+
+  .logo {
+    max-width: 100%;
+    width: 16rem;
+    height: auto;
+  }
+</style>

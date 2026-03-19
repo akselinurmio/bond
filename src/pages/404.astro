@@ -1,0 +1,12 @@
+---
+import LangLayout from "layouts/LangLayout.astro";
+
+const locale = Astro.currentLocale ?? "fi";
+const heading = locale === "fi" ? "Sivua ei löytynyt" : "Page was not found";
+---
+
+<LangLayout title="404">
+  <div>
+    <h1>{heading}</h1>
+  </div>
+</LangLayout>
