@@ -1,54 +1,67 @@
 ---
+import { getCollection } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import VoteForm from "components/VoteForm.astro";
-import { bondActorTmdbIds } from "lib/constants";
-import { getConfiguration, getPerson } from "lib/tmdb";
-import { getProfileImageUrlPrefix } from "lib/tmdb-utils";
+import { getBondActorPath } from "lib/actor-routes";
 import { getVotesForAllBonds } from "lib/votes";
 
 const language = (Astro.currentLocale ?? "fi") as "en" | "fi";
 
-const [config, actors, votes] = await Promise.all([
-  getConfiguration(),
-  Promise.all(
-    Array.from(bondActorTmdbIds, (id) => getPerson(id, language)),
-  ),
+const [actors, votes] = await Promise.all([
+  getCollection("actors"),
   getVotesForAllBonds(),
 ]);
-
-const profileImageUrlPrefix = getProfileImageUrlPrefix(config);
+const sortedActors = actors.sort(
+  (actorA, actorB) => actorA.data.order - actorB.data.order,
+);
 ---
 
 <LangLayout
-  canonical={language === "fi" ? "https://lemppari.bond/" : "https://whoisyourfavorite.bond/"}
-  alternates={{ en: "https://whoisyourfavorite.bond/", fi: "https://lemppari.bond/" }}
+  canonical={language === "fi"
+    ? "https://lemppari.bond/"
+    : "https://whoisyourfavorite.bond/"}
+  alternates={{
+    en: "https://whoisyourfavorite.bond/",
+    fi: "https://lemppari.bond/",
+  }}
 >
   <section class="bonds">
-    {actors.map((actor) => {
-      const titleId = `bond-${actor.id}`;
-      return (
-        <article aria-labelledby={titleId}>
-          {actor.profile_path ? (
-            <img
-              alt={actor.name}
-              src={profileImageUrlPrefix + actor.profile_path}
-              width="185"
-              height="278"
-              class="bond-image"
+    {
+      sortedActors.map((actor) => {
+        const localizedActor = actor.data.locales[language];
+        const titleId = `bond-${actor.id}`;
+        const actorPath = getBondActorPath(
+          actor.data.tmdbId,
+          localizedActor.slug,
+          language,
+        );
+
+        return (
+          <article aria-labelledby={titleId}>
+            <a href={actorPath} class="bond-link" aria-labelledby={titleId}>
+              {actor.data.profileImageUrl ? (
+                <img
+                  alt={localizedActor.name}
+                  src={actor.data.profileImageUrl}
+                  width="185"
+                  height="278"
+                  class="bond-image"
+                />
+              ) : null}
+              <h3 id={titleId} translate="no" class="bond-name">
+                {localizedActor.name}
+              </h3>
+            </a>
+            <VoteForm
+              actorId={actor.data.tmdbId}
+              actorName={localizedActor.name}
+              language={language}
+              votes={votes.get(actor.data.tmdbId) || 0}
             />
-          ) : null}
-          <h3 id={titleId} translate="no" class="bond-name">
-            {actor.name}
-          </h3>
-          <VoteForm
-            actorId={actor.id}
-            actorName={actor.name}
-            language={language}
-            votes={votes.get(actor.id) || 0}
-          />
-        </article>
-      );
-    })}
+          </article>
+        );
+      })
+    }
   </section>
 </LangLayout>
 
@@ -67,6 +80,17 @@ const profileImageUrlPrefix = getProfileImageUrlPrefix(config);
     object-fit: contain;
     max-width: 100%;
     height: auto;
+  }
+
+  .bond-link {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+  }
+
+  .bond-link:hover,
+  .bond-link:focus-visible {
+    text-decoration: underline;
   }
 
   .bond-name {

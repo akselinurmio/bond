@@ -6,7 +6,7 @@ import { prisma } from "lib/db";
 const idSchema = z
   .string()
   .pipe(z.coerce.number())
-  .refine((id) => bondActorTmdbIds.has(id));
+  .refine((id) => bondActorTmdbIds.some((actorId) => actorId === id));
 
 export const POST: APIRoute = async ({ request }) => {
   let id: number;

@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from "astro:content";
+import LangLayout from "layouts/LangLayout.astro";
+import { getBondActorUrl } from "lib/actor-routes";
+
+interface Props {
+  actor: CollectionEntry<"actors">;
+  language: "en" | "fi";
+}
+
+const { actor, language } = Astro.props;
+const localizedActor = actor.data.locales[language];
+
+const title = localizedActor.name;
+const canonical = getBondActorUrl(
+  actor.data.tmdbId,
+  localizedActor.slug,
+  language,
+);
+const alternates = {
+  en: getBondActorUrl(actor.data.tmdbId, actor.data.locales.en.slug, "en"),
+  fi: getBondActorUrl(actor.data.tmdbId, actor.data.locales.fi.slug, "fi"),
+};
+const backLabel =
+  language === "fi" ? "Takaisin etusivulle" : "Back to the front page";
+---
+
+<LangLayout title={title} canonical={canonical} alternates={alternates}>
+  <article class="actor-page">
+    <a href="/" class="back-link">{backLabel}</a>
+    {
+      actor.data.profileImageUrl ? (
+        <img
+          alt={localizedActor.name}
+          src={actor.data.profileImageUrl}
+          width="632"
+          height="948"
+          class="actor-image"
+        />
+      ) : null
+    }
+    <h1 translate="no">{localizedActor.name}</h1>
+  </article>
+</LangLayout>
+
+<style>
+  .actor-page {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+  }
+
+  .back-link {
+    font-weight: 700;
+  }
+
+  .actor-image {
+    display: block;
+    max-width: min(100%, 24rem);
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+</style>
