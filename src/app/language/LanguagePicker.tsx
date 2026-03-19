@@ -1,12 +1,13 @@
-import { locale } from "app/utils/locale";
 import Image from "next/image";
 import flagFi from "app/assets/Animated-Flag-Finland.gif";
 import flagUk from "app/assets/Animated-Flag-United-Kingdom.gif";
 import styles from "./LanguagePicker.module.css";
 
-export async function LanguagePicker() {
-  const language = await locale();
+type Props = {
+  language: "en" | "fi";
+};
 
+export function LanguagePicker({ language }: Props) {
   return (
     <a
       href={

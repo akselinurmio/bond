@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { z } from "zod";
 
 const Configuration = z.object({
@@ -43,8 +44,11 @@ function getHeaders() {
 }
 
 export async function getConfiguration(): Promise<Configuration> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("tmdb-config");
+
   const response = await fetch(`${baseUrl}/3/configuration`, {
-    cache: "force-cache",
     headers: getHeaders(),
   });
 
@@ -54,11 +58,17 @@ export async function getConfiguration(): Promise<Configuration> {
   return Configuration.parse(await response.json());
 }
 
-export async function getPerson(id: number, language: string): Promise<Person> {
+export async function getPerson(
+  id: number,
+  language: string,
+): Promise<Person> {
+  "use cache";
+  cacheLife("days");
+  cacheTag("tmdb-person");
+
   const url = `${baseUrl}/3/person/${id}?language=${language}`;
 
   const response = await fetch(url, {
-    cache: "force-cache",
     headers: getHeaders(),
   });
 

@@ -1,27 +1,18 @@
-import { locale } from "app/utils/locale";
 import { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 
-const localeSegment = {
-  en: "about",
-  fi: "tietoa",
-} as const;
-
-type PageProps = { params: Promise<{ about: string }> };
+type PageProps = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const language = await locale();
-
-  if ((await params).about !== localeSegment[language]) return {};
+  const { lang } = await params;
 
   return {
-    title: language === "fi" ? "Tietoa" : "About",
+    title: lang === "fi" ? "Tietoa" : "About",
     alternates: {
       canonical:
-        language === "fi"
+        lang === "fi"
           ? "https://lemppari.bond/tietoa"
           : "https://whoisyourfavorite.bond/about",
       languages: {
@@ -33,15 +24,13 @@ export async function generateMetadata({
 }
 
 export default async function About({ params }: PageProps) {
-  const language = await locale();
-
-  if ((await params).about !== localeSegment[language]) notFound();
+  const { lang } = await params;
 
   return (
     <>
-      <h1>{language === "fi" ? "Tietoa sivusta" : "About the page"}</h1>
+      <h1>{lang === "fi" ? "Tietoa sivusta" : "About the page"}</h1>
 
-      <h2>{language === "fi" ? "Kiitokset" : "Attribution"}</h2>
+      <h2>{lang === "fi" ? "Kiitokset" : "Attribution"}</h2>
 
       <p lang="en">
         <a href="https://www.themoviedb.org/" target="_blank">
@@ -50,6 +39,7 @@ export default async function About({ params }: PageProps) {
             alt="The Movie Database"
             width={248}
             height={18}
+            priority
           />
         </a>
       </p>

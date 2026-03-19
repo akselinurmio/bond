@@ -1,8 +1,8 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { bondActorTmdbIds } from "app/constants";
-import { locale } from "app/utils/locale";
 import { prisma } from "./services/db";
 
 const actorIdSchema = z.coerce
@@ -17,7 +17,7 @@ export async function voteForActor(
 ): Promise<VoteActionState> {
   console.log("Voting...", Object.fromEntries(formData.entries()));
 
-  const language = await locale();
+  const language = formData.get("language");
 
   let id: number;
   try {
@@ -44,6 +44,8 @@ export async function voteForActor(
       lastVotedAt: new Date(),
     },
   });
+
+  revalidateTag("votes");
 
   return {
     error: null,

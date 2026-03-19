@@ -1,15 +1,13 @@
-import { locale } from "app/utils/locale";
 import Link from "next/link";
 import React from "react";
 import styles from "./Logo.module.css";
 
 type Props = {
+  language: "en" | "fi";
   siteName: string;
 };
 
-export const Logo: React.FC<Props> = async ({ siteName }) => {
-  const language = await locale();
-
+export const Logo: React.FC<Props> = ({ language, siteName }) => {
   return (
     <Link href="/">
       <img
