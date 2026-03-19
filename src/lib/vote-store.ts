@@ -1,13 +1,11 @@
-import { persistentBoolean } from "@nanostores/persistent";
+import { persistentJSON } from "@nanostores/persistent";
 
-export const votedStorageKey = "bond:voted";
+export const $votedActor = persistentJSON<number | null>("bond:voted", null);
 
-export const $voted = persistentBoolean(votedStorageKey);
-
-export function markAsVoted(): void {
-  $voted.set(true);
+export function markAsVoted(actor: number): void {
+  $votedActor.set(actor);
 }
 
-export function clearVoted(): void {
-  $voted.set(false);
+export function clearVotedActor(): void {
+  $votedActor.set(null);
 }

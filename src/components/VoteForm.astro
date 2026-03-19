@@ -10,19 +10,22 @@ const { actorId, actorName, language, votes } = Astro.props;
 
 const lastName = actorName.trim().split(" ").at(-1);
 const buttonText = `${lastName} ${language === "fi" ? "on mun lemppari" : "is my favorite"}`;
-const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
+const formattedVotes = `${votes.toLocaleString(language)} ${
+  language === "fi"
     ? votes === 1
       ? "ääni"
       : "ääntä"
     : votes === 1
       ? "vote"
-      : "votes"}`;
+      : "votes"
+}`;
 ---
 
 <form
   class="vote-form"
   method="POST"
   action="/api/vote"
+  data-actor-id={actorId}
   data-initial-votes={votes}
   data-language={language}
 >
@@ -33,19 +36,19 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
 </form>
 
 <script>
-  import { $voted, clearVoted, markAsVoted } from "lib/vote-store";
+  import { $votedActor, clearVotedActor, markAsVoted } from "lib/vote-store";
 
   document.querySelectorAll<HTMLFormElement>(".vote-form").forEach((form) => {
     const button = form.querySelector("button")!;
     const countEl = form.querySelector(".vote-count")!;
+    const actorId = Number(form.dataset.actorId);
     const language = form.dataset.language;
     let votes = Number(form.dataset.initialVotes);
 
-    const unsubscribe = $voted.subscribe((hasVoted) => {
-      button.disabled = hasVoted;
+    $votedActor.subscribe((votedActor) => {
+      button.disabled = votedActor === actorId;
+      button.hidden = votedActor !== null && votedActor !== actorId;
     });
-
-    window.addEventListener("pagehide", unsubscribe, { once: true });
 
     function renderVoteCount(count: number): void {
       countEl.textContent = `${count.toLocaleString(language)} ${
@@ -60,7 +63,7 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
     }
 
     function applyOptimisticVote(): void {
-      markAsVoted();
+      markAsVoted(actorId);
       votes++;
       renderVoteCount(votes);
     }
@@ -68,11 +71,11 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
     function revertOptimisticVote(): void {
       votes--;
       renderVoteCount(votes);
-      clearVoted();
+      clearVotedActor();
     }
 
     form.addEventListener("submit", async (e) => {
-      if ($voted.get()) {
+      if ($votedActor.get() !== null) {
         e.preventDefault();
         return;
       }
