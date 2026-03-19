@@ -33,11 +33,19 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
 </form>
 
 <script>
+  import { $voted, clearVoted, markAsVoted } from "lib/vote-store";
+
   document.querySelectorAll<HTMLFormElement>(".vote-form").forEach((form) => {
     const button = form.querySelector("button")!;
     const countEl = form.querySelector(".vote-count")!;
     const language = form.dataset.language;
     let votes = Number(form.dataset.initialVotes);
+
+    const unsubscribe = $voted.subscribe((hasVoted) => {
+      button.disabled = hasVoted;
+    });
+
+    window.addEventListener("pagehide", unsubscribe, { once: true });
 
     function renderVoteCount(count: number): void {
       countEl.textContent = `${count.toLocaleString(language)} ${
@@ -52,7 +60,7 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
     }
 
     function applyOptimisticVote(): void {
-      button.disabled = true;
+      markAsVoted();
       votes++;
       renderVoteCount(votes);
     }
@@ -60,10 +68,15 @@ const formattedVotes = `${votes.toLocaleString(language)} ${language === "fi"
     function revertOptimisticVote(): void {
       votes--;
       renderVoteCount(votes);
-      button.disabled = false;
+      clearVoted();
     }
 
     form.addEventListener("submit", async (e) => {
+      if ($voted.get()) {
+        e.preventDefault();
+        return;
+      }
+
       e.preventDefault();
       applyOptimisticVote();
 
