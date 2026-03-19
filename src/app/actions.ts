@@ -5,9 +5,12 @@ import { z } from "zod";
 import { bondActorTmdbIds } from "app/constants";
 import { prisma } from "./services/db";
 
-const actorIdSchema = z.coerce
-  .number()
+const actorIdSchema = z
+  .string()
+  .pipe(z.coerce.number())
   .refine((id) => bondActorTmdbIds.has(id));
+
+const languageSchema = z.enum(["en", "fi"]);
 
 export type VoteActionState = { error: string | null; voted: boolean };
 
@@ -17,7 +20,16 @@ export async function voteForActor(
 ): Promise<VoteActionState> {
   console.log("Voting...", Object.fromEntries(formData.entries()));
 
-  const language = formData.get("language");
+  let language: z.infer<typeof languageSchema>;
+  try {
+    language = languageSchema.parse(formData.get("language"));
+  } catch (e) {
+    console.error(e);
+    return {
+      error: "Invalid language.",
+      voted: false,
+    };
+  }
 
   let id: number;
   try {
@@ -45,7 +57,7 @@ export async function voteForActor(
     },
   });
 
-  revalidateTag("votes");
+  revalidateTag("votes", "max");
 
   return {
     error: null,

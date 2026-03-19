@@ -5,7 +5,7 @@ export async function getVotesForAllBonds(): Promise<
   ReadonlyMap<number, number>
 > {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("seconds");
   cacheTag("votes");
 
   const result = await prisma.actor.findMany({
