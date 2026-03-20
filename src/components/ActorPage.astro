@@ -24,10 +24,6 @@ const alternates = {
 };
 const backLabel =
   language === "fi" ? "Takaisin etusivulle" : "Back to the front page";
-const filmographyLabel =
-  language === "fi"
-    ? "Esiintynyt seuraavissa Bond-elokuvissa"
-    : "Appeared in the following Bond films";
 
 function formatDate(isoDate: string) {
   return {
@@ -50,9 +46,25 @@ const bondFilms = (await getCollection("bondFilms"))
     const credit = movieCreditsByTmdbId.get(film.data.tmdbId);
     return credit ? [{ credit, film }] : [];
   });
+const filmographyLabel =
+  language === "fi"
+    ? bondFilms.length === 1
+      ? "Esiintynyt yhdessä Bond-elokuvassa"
+      : `Esiintynyt ${bondFilms.length} Bond-elokuvassa`
+    : bondFilms.length === 1
+      ? "Appeared in one Bond film"
+      : `Appeared in ${bondFilms.length} Bond films`;
 ---
 
-<LangLayout title={title} canonical={canonical} alternates={alternates}>
+<LangLayout
+  title={title}
+  canonical={canonical}
+  alternates={alternates}
+  localePaths={{
+    en: `bonds/${actor.data.tmdbId}/${actor.data.locales.en.slug}`,
+    fi: `bonds/${actor.data.tmdbId}/${actor.data.locales.fi.slug}`,
+  }}
+>
   <article class="actor-page">
     <a href="/" class="back-link">&larr; {backLabel}</a>
 

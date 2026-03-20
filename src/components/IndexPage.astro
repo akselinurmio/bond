@@ -1,9 +1,8 @@
 ---
-import { getAbsoluteLocaleUrl } from "astro:i18n";
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from "astro:i18n";
 import { getCollection } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import VoteForm from "components/VoteForm.astro";
-import { getBondActorPath } from "lib/actor-routes";
 import { getVotesForAllBonds } from "lib/votes";
 
 interface Props {
@@ -27,15 +26,19 @@ const sortedActors = actors.sort(
     en: getAbsoluteLocaleUrl("en", ""),
     fi: getAbsoluteLocaleUrl("fi", ""),
   }}
+  localePaths={{
+    en: "",
+    fi: "",
+  }}
 >
   <section class="bonds">
     {
       sortedActors.map((actor) => {
         const localizedActor = actor.data.locales[language];
         const titleId = `bond-${actor.id}`;
-        const actorPath = getBondActorPath(
-          actor.data.tmdbId,
-          localizedActor.slug,
+        const actorPath = getRelativeLocaleUrl(
+          language,
+          `bonds/${actor.data.tmdbId}/${localizedActor.slug}`,
         );
 
         return (

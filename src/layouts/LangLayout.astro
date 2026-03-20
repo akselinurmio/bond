@@ -6,9 +6,10 @@ interface Props {
   title?: string;
   canonical?: string;
   alternates?: { en: string; fi: string };
+  localePaths?: { en: string; fi: string };
 }
 
-const { title, canonical, alternates } = Astro.props;
+const { title, canonical, alternates, localePaths } = Astro.props;
 const locale = (Astro.currentLocale ?? "fi") as "en" | "fi";
 
 const siteNames = {
@@ -20,7 +21,10 @@ const siteName = siteNames[locale];
 const pageTitle = title ? `${title} | ${siteName}` : siteName;
 
 const otherLocale = locale === "fi" ? "en" : "fi";
-const otherLocaleUrl = getRelativeLocaleUrl(otherLocale);
+const otherLocalePath = localePaths?.[otherLocale] ?? "";
+const otherLocaleUrl = otherLocalePath
+  ? getRelativeLocaleUrl(otherLocale, otherLocalePath)
+  : getRelativeLocaleUrl(otherLocale);
 const flagSrc =
   locale === "fi"
     ? "/Animated-Flag-United-Kingdom.gif"
