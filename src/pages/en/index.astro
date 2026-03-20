@@ -1,4 +1,5 @@
 ---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
 import { getCollection } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import VoteForm from "components/VoteForm.astro";
@@ -17,10 +18,10 @@ const sortedActors = actors.sort(
 ---
 
 <LangLayout
-  canonical="https://whoisyourfavorite.bond/"
+  canonical={getAbsoluteLocaleUrl(language, "")}
   alternates={{
-    en: "https://whoisyourfavorite.bond/",
-    fi: "https://lemppari.bond/",
+    en: getAbsoluteLocaleUrl("en", ""),
+    fi: getAbsoluteLocaleUrl("fi", ""),
   }}
 >
   <section class="bonds">

@@ -1,3 +1,5 @@
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+
 export function getBondActorSlug(name: string): string {
   return name
     .normalize("NFKD")
@@ -14,7 +16,7 @@ export function getBondActorPath(
 ): string {
   return language === "fi"
     ? `/bondit/${actorId}/${slug}`
-    : `/actors/${actorId}/${slug}`;
+    : `/bonds/${actorId}/${slug}`;
 }
 
 export function getBondActorUrl(
@@ -22,10 +24,9 @@ export function getBondActorUrl(
   slug: string,
   language: "en" | "fi",
 ): string {
-  const origin =
+  const path =
     language === "fi"
-      ? "https://lemppari.bond"
-      : "https://whoisyourfavorite.bond";
-
-  return origin + getBondActorPath(actorId, slug, language);
+      ? `bondit/${actorId}/${slug}`
+      : `bonds/${actorId}/${slug}`;
+  return getAbsoluteLocaleUrl(language, path);
 }

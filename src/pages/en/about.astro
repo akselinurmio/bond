@@ -1,11 +1,15 @@
 ---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
 import LangLayout from "layouts/LangLayout.astro";
 ---
 
 <LangLayout
   title="About"
-  canonical="https://whoisyourfavorite.bond/about"
-  alternates={{ en: "https://whoisyourfavorite.bond/about", fi: "https://lemppari.bond/tietoa" }}
+  canonical={getAbsoluteLocaleUrl("en", "about")}
+  alternates={{
+    en: getAbsoluteLocaleUrl("en", "about"),
+    fi: getAbsoluteLocaleUrl("fi", "tietoa"),
+  }}
 >
   <h1>About the page</h1>
 

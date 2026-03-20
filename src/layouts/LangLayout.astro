@@ -1,4 +1,5 @@
 ---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -18,11 +19,8 @@ const siteNames = {
 const siteName = siteNames[locale];
 const pageTitle = title ? `${title} | ${siteName}` : siteName;
 
-const otherLocaleUrl =
-  locale === "fi"
-    ? "https://whoisyourfavorite.bond/"
-    : "https://lemppari.bond/";
 const otherLocale = locale === "fi" ? "en" : "fi";
+const otherLocaleUrl = getAbsoluteLocaleUrl(otherLocale, "");
 const flagSrc =
   locale === "fi"
     ? "/Animated-Flag-United-Kingdom.gif"
@@ -45,13 +43,7 @@ const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
         lang={otherLocale}
         rel="alternate"
       >
-        <img
-          src={flagSrc}
-          alt={flagAlt}
-          width="36"
-          height="24"
-          class="flag"
-        />
+        <img src={flagSrc} alt={flagAlt} width="36" height="24" class="flag" />
       </a>
       <a href="/">
         <img
