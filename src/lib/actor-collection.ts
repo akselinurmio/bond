@@ -1,10 +1,18 @@
 import type { Loader } from "astro/loaders";
 import { z } from "astro/zod";
 
-import { getBondActorSlug } from "./actor-routes";
 import { bondActorTmdbIds } from "./constants";
 import { getConfiguration, getPerson } from "./tmdb";
 import { getProfileImageUrlPrefix } from "./tmdb-utils";
+
+function getBondActorSlug(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 const localizedActorSchema = z.object({
   biography: z.string().nullable(),

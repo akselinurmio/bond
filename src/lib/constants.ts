@@ -1,4 +1,4 @@
-export const bondActorTmdbIds = [
+export const bondActorTmdbIds: ReadonlyArray<number> = [
   738, // Sean Connery
   14261, // David Niven
   10167, // George Lazenby

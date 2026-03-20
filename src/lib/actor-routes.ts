@@ -1,14 +1,5 @@
 import { getAbsoluteLocaleUrl } from "astro:i18n";
 
-export function getBondActorSlug(name: string): string {
-  return name
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export function getBondActorPath(
   actorId: number,
   slug: string,

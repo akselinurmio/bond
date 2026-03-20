@@ -10,19 +10,17 @@ const idSchema = z
 
 export const POST: APIRoute = async ({ request }) => {
   let id: number;
-  let language: string;
   try {
     const formData = await request.formData();
     id = idSchema.parse(formData.get("id"));
-    language = formData.get("language") === "en" ? "en" : "fi";
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid request." }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(
+      { success: false, error: "Invalid request." },
+      { status: 400 },
+    );
   }
 
-  await prisma.actor.upsert({
+  const actor = await prisma.actor.upsert({
     where: { tmdbId: id },
     update: {
       numberOfVotes: { increment: 1 },
@@ -35,10 +33,5 @@ export const POST: APIRoute = async ({ request }) => {
     },
   });
 
-  const redirectPath = language === "en" ? "/en/" : "/";
-
-  return new Response(null, {
-    status: 303,
-    headers: { Location: redirectPath },
-  });
+  return Response.json({ success: true, votes: actor.numberOfVotes });
 };

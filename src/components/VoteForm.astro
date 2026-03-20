@@ -23,15 +23,12 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
 
 <form
   class="vote-form"
-  method="POST"
-  action="/api/vote"
   data-actor-id={actorId}
   data-initial-votes={votes}
   data-language={language}
 >
   <p class="vote-count">{formattedVotes}</p>
   <input type="hidden" name="id" value={actorId} />
-  <input type="hidden" name="language" value={language} />
   <button type="submit">{buttonText}</button>
 </form>
 
@@ -46,8 +43,7 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
     let votes = Number(form.dataset.initialVotes);
 
     $votedActor.subscribe((votedActor) => {
-      button.disabled = votedActor === actorId;
-      button.hidden = votedActor !== null && votedActor !== actorId;
+      button.disabled = votedActor != null;
     });
 
     function renderVoteCount(count: number): void {
@@ -84,15 +80,21 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
       applyOptimisticVote();
 
       try {
-        const res = await fetch(form.action, {
+        const res = await fetch("/api/vote", {
           method: "POST",
           body: new FormData(form),
         });
 
-        if (!res.ok) {
+        const data = await res.json();
+
+        if (!data.success) {
           throw new Error("Vote failed");
         }
-      } catch {
+
+        renderVoteCount(data.votes);
+        votes = data.votes;
+      } catch (err) {
+        console.error(err);
         revertOptimisticVote();
       }
     });
