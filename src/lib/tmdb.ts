@@ -2,8 +2,8 @@ import { z } from "zod";
 
 const Configuration = z.object({
   images: z.object({
-    base_url: z.string(),
-    secure_base_url: z.string(),
+    base_url: z.httpUrl(),
+    secure_base_url: z.httpUrl(),
     backdrop_sizes: z.string().array(),
     logo_sizes: z.string().array(),
     poster_sizes: z.string().array(),
@@ -30,6 +30,23 @@ const Person = z.object({
   profile_path: z.string().nullable(),
 });
 export type Person = z.infer<typeof Person>;
+
+const MovieCreditCastEntry = z.object({
+  id: z.number().int(),
+  title: z.string(),
+  original_title: z.string(),
+  character: z.string(),
+  release_date: z.string(),
+  poster_path: z.string().nullable(),
+  vote_average: z.number(),
+});
+export type MovieCreditCastEntry = z.infer<typeof MovieCreditCastEntry>;
+
+const MovieCredits = z.object({
+  id: z.number().int(),
+  cast: MovieCreditCastEntry.array(),
+});
+export type MovieCredits = z.infer<typeof MovieCredits>;
 
 const baseUrl = "https://api.themoviedb.org";
 
@@ -65,4 +82,39 @@ export async function getPerson(id: number, language: string): Promise<Person> {
     throw new Error(`Actor fetch failed: ${await response.text()}`);
 
   return Person.parse(await response.json());
+}
+
+const PersonImages = z.object({
+  profiles: z.array(
+    z.object({
+      file_path: z.string(),
+      width: z.number().int(),
+      height: z.number().int(),
+    }),
+  ),
+});
+export type PersonImages = z.infer<typeof PersonImages>;
+
+export async function getPersonImages(id: number): Promise<PersonImages> {
+  const url = `${baseUrl}/3/person/${id}/images`;
+  const response = await fetch(url, { headers: getHeaders() });
+  if (!response.ok)
+    throw new Error(`Person images fetch failed: ${await response.text()}`);
+  return PersonImages.parse(await response.json());
+}
+
+export async function getPersonMovieCredits(
+  id: number,
+  language: string,
+): Promise<MovieCredits> {
+  const url = `${baseUrl}/3/person/${id}/movie_credits?language=${language}`;
+
+  const response = await fetch(url, {
+    headers: getHeaders(),
+  });
+
+  if (!response.ok)
+    throw new Error(`Movie credits fetch failed: ${await response.text()}`);
+
+  return MovieCredits.parse(await response.json());
 }

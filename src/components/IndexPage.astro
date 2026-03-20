@@ -1,0 +1,106 @@
+---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+import { getCollection } from "astro:content";
+import LangLayout from "layouts/LangLayout.astro";
+import VoteForm from "components/VoteForm.astro";
+import { getBondActorPath } from "lib/actor-routes";
+import { getVotesForAllBonds } from "lib/votes";
+
+interface Props {
+  language: "en" | "fi";
+}
+
+const { language } = Astro.props;
+
+const [actors, votes] = await Promise.all([
+  getCollection("actors"),
+  getVotesForAllBonds(),
+]);
+const sortedActors = actors.sort(
+  (actorA, actorB) => actorA.data.order - actorB.data.order,
+);
+---
+
+<LangLayout
+  canonical={getAbsoluteLocaleUrl(language, "")}
+  alternates={{
+    en: getAbsoluteLocaleUrl("en", ""),
+    fi: getAbsoluteLocaleUrl("fi", ""),
+  }}
+>
+  <section class="bonds">
+    {
+      sortedActors.map((actor) => {
+        const localizedActor = actor.data.locales[language];
+        const titleId = `bond-${actor.id}`;
+        const actorPath = getBondActorPath(
+          actor.data.tmdbId,
+          localizedActor.slug,
+          language,
+        );
+
+        return (
+          <article aria-labelledby={titleId}>
+            <a href={actorPath} class="bond-link" aria-labelledby={titleId}>
+              {actor.data.profileImage ? (
+                <img
+                  alt={localizedActor.name}
+                  src={actor.data.profileImage.src}
+                  srcset={actor.data.profileImage.srcset}
+                  sizes="185px"
+                  width="185"
+                  height="278"
+                  class="bond-image"
+                />
+              ) : null}
+              <h3 id={titleId} translate="no" class="bond-name">
+                {localizedActor.name}
+              </h3>
+            </a>
+            <VoteForm
+              actorId={actor.data.tmdbId}
+              actorName={localizedActor.name}
+              language={language}
+              votes={votes.get(actor.data.tmdbId) || 0}
+            />
+          </article>
+        );
+      })
+    }
+  </section>
+</LangLayout>
+
+<style>
+  .bonds {
+    display: grid;
+    column-gap: 0.5rem;
+    row-gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    justify-content: center;
+    align-content: center;
+  }
+
+  .bond-image {
+    display: block;
+    object-fit: contain;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .bond-link {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+  }
+
+  .bond-link:hover,
+  .bond-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .bond-name {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+</style>
