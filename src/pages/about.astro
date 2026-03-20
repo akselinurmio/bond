@@ -5,8 +5,11 @@ import LangLayout from "layouts/LangLayout.astro";
 
 <LangLayout
   title="Tietoa"
-  canonical={getAbsoluteLocaleUrl("fi", "tietoa")}
-  alternates={{ en: getAbsoluteLocaleUrl("en", "about"), fi: getAbsoluteLocaleUrl("fi", "tietoa") }}
+  canonical={getAbsoluteLocaleUrl("fi", "about")}
+  alternates={{
+    en: getAbsoluteLocaleUrl("en", "about"),
+    fi: getAbsoluteLocaleUrl("fi", "about"),
+  }}
 >
   <h1>Tietoa sivusta</h1>
 

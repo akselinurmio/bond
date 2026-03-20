@@ -16,7 +16,7 @@ if (!actor) {
   Astro.response.status = 404;
 } else if (canonicalSlug !== requestedSlug) {
   return Astro.redirect(
-    getBondActorPath(actor.data.tmdbId, canonicalSlug, language),
+    getBondActorPath(actor.data.tmdbId, canonicalSlug),
     301,
   );
 }
