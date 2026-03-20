@@ -1,7 +1,6 @@
 ---
 import { getEntry } from "astro:content";
 import ActorPage from "components/ActorPage.astro";
-import { getBondActorPath } from "lib/actor-routes";
 
 const language = "fi" as const;
 const requestedActorId = Astro.params.actorId;
@@ -10,15 +9,15 @@ const requestedSlug = Astro.params.slug ?? "";
 const actor = requestedActorId
   ? await getEntry("actors", requestedActorId)
   : undefined;
-const canonicalSlug = actor?.data.locales[language].slug;
 
 if (!actor) {
   Astro.response.status = 404;
-} else if (canonicalSlug !== requestedSlug) {
-  return Astro.redirect(
-    getBondActorPath(actor.data.tmdbId, canonicalSlug),
-    301,
-  );
+} else {
+  const canonicalSlug = actor.data.locales[language].slug;
+
+  if (canonicalSlug !== requestedSlug) {
+    return Astro.redirect(`/bonds/${actor.data.tmdbId}/${canonicalSlug}`, 301);
+  }
 }
 ---
 

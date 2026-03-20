@@ -48,6 +48,27 @@ const MovieCredits = z.object({
 });
 export type MovieCredits = z.infer<typeof MovieCredits>;
 
+const MovieListItem = z.object({
+  id: z.number().int(),
+  media_type: z.string().optional(),
+  title: z.string(),
+  original_title: z.string(),
+  overview: z.string(),
+  release_date: z.string().nullable().optional(),
+  poster_path: z.string().nullable(),
+});
+export type MovieListItem = z.infer<typeof MovieListItem>;
+
+const MovieList = z.object({
+  id: z.union([z.string(), z.number().int()]).transform(String),
+  items: MovieListItem.array(),
+  item_count: z.number().int(),
+  name: z.string(),
+  page: z.number().int().optional(),
+  total_pages: z.number().int().optional(),
+});
+export type MovieList = z.infer<typeof MovieList>;
+
 const baseUrl = "https://api.themoviedb.org";
 
 function getHeaders() {
@@ -117,4 +138,51 @@ export async function getPersonMovieCredits(
     throw new Error(`Movie credits fetch failed: ${await response.text()}`);
 
   return MovieCredits.parse(await response.json());
+}
+
+async function getMovieListPage(
+  listId: number,
+  language: string,
+  page: number,
+): Promise<MovieList> {
+  const params = new URLSearchParams({
+    language,
+    page: String(page),
+  });
+  const url = `${baseUrl}/3/list/${listId}?${params.toString()}`;
+
+  const response = await fetch(url, {
+    headers: getHeaders(),
+  });
+
+  if (!response.ok)
+    throw new Error(`Movie list fetch failed: ${await response.text()}`);
+
+  return MovieList.parse(await response.json());
+}
+
+export async function getMovieList(
+  listId: number,
+  language: string,
+): Promise<MovieList> {
+  const firstPage = await getMovieListPage(listId, language, 1);
+  const totalPages = firstPage.total_pages ?? 1;
+
+  if (totalPages <= 1) {
+    return firstPage;
+  }
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) =>
+      getMovieListPage(listId, language, index + 2),
+    ),
+  );
+
+  return {
+    ...firstPage,
+    items: [
+      ...firstPage.items,
+      ...remainingPages.flatMap((page) => page.items),
+    ],
+  };
 }

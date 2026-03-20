@@ -1,5 +1,5 @@
 ---
-import type { CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import { getBondActorUrl } from "lib/actor-routes";
 import { Temporal } from "temporal-polyfill";
@@ -24,7 +24,10 @@ const alternates = {
 };
 const backLabel =
   language === "fi" ? "Takaisin etusivulle" : "Back to the front page";
-const filmographyLabel = language === "fi" ? "Filmografia" : "Filmography";
+const filmographyLabel =
+  language === "fi"
+    ? "Esiintynyt seuraavissa Bond-elokuvissa"
+    : "Appeared in the following Bond films";
 
 function formatDate(isoDate: string) {
   return {
@@ -38,7 +41,15 @@ function formatDate(isoDate: string) {
 
 const birthday = actor.data.birthday ? formatDate(actor.data.birthday) : null;
 const deathday = actor.data.deathday ? formatDate(actor.data.deathday) : null;
-const movieCredits = localizedActor.movieCredits;
+const movieCreditsByTmdbId = new Map(
+  localizedActor.movieCredits.map((credit) => [credit.tmdbId, credit]),
+);
+const bondFilms = (await getCollection("bondFilms"))
+  .toSorted((a, b) => a.data.listOrder - b.data.listOrder)
+  .flatMap((film) => {
+    const credit = movieCreditsByTmdbId.get(film.data.tmdbId);
+    return credit ? [{ credit, film }] : [];
+  });
 ---
 
 <LangLayout title={title} canonical={canonical} alternates={alternates}>
@@ -79,35 +90,39 @@ const movieCredits = localizedActor.movieCredits;
     </div>
 
     {
-      movieCredits.length > 0 ? (
+      bondFilms.length > 0 ? (
         <section class="filmography">
           <h2>{filmographyLabel}</h2>
           <ul class="filmography-list">
-            {movieCredits.map((credit) => (
-              <li class="film-card">
-                {credit.posterImage ? (
-                  <img
-                    alt={credit.title}
-                    src={credit.posterImage.src}
-                    srcset={credit.posterImage.srcset}
-                    sizes="185px"
-                    width="185"
-                    height="277"
-                    class="film-poster"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="film-poster-placeholder" />
-                )}
-                <strong class="film-title">{credit.title}</strong>
-                {credit.releaseYear ? (
-                  <span class="film-year">{credit.releaseYear}</span>
-                ) : null}
-                {credit.character ? (
-                  <span class="film-character">{credit.character}</span>
-                ) : null}
-              </li>
-            ))}
+            {bondFilms.map(({ credit, film }) => {
+              const localizedFilm = film.data.locales[language];
+
+              return (
+                <li class="film-card">
+                  {film.data.posterImage ? (
+                    <img
+                      alt={localizedFilm.title}
+                      src={film.data.posterImage.src}
+                      srcset={film.data.posterImage.srcset}
+                      sizes="185px"
+                      width="185"
+                      height="277"
+                      class="film-poster"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="film-poster-placeholder" />
+                  )}
+                  <strong class="film-title">{localizedFilm.title}</strong>
+                  {film.data.releaseYear ? (
+                    <span class="film-year">{film.data.releaseYear}</span>
+                  ) : null}
+                  {credit.character ? (
+                    <span class="film-character">{credit.character}</span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null

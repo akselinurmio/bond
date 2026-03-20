@@ -1,5 +1,5 @@
 ---
-import { getAbsoluteLocaleUrl } from "astro:i18n";
+import { getRelativeLocaleUrl } from "astro:i18n";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -20,7 +20,7 @@ const siteName = siteNames[locale];
 const pageTitle = title ? `${title} | ${siteName}` : siteName;
 
 const otherLocale = locale === "fi" ? "en" : "fi";
-const otherLocaleUrl = getAbsoluteLocaleUrl(otherLocale, "");
+const otherLocaleUrl = getRelativeLocaleUrl(otherLocale);
 const flagSrc =
   locale === "fi"
     ? "/Animated-Flag-United-Kingdom.gif"
@@ -29,8 +29,9 @@ const flagAlt = locale === "fi" ? "In English" : "Suomeksi";
 const logoSrc = locale === "fi" ? "/logo_fi.svg" : "/logo_en.svg";
 const logoWidth = locale === "fi" ? "753" : "758";
 
+const homeHref = getRelativeLocaleUrl(locale);
 const homeLabel = locale === "fi" ? "Etusivu" : "Front page";
-const aboutHref = "/about";
+const aboutHref = getRelativeLocaleUrl(locale, "about");
 const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
 ---
 
@@ -45,7 +46,7 @@ const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
       >
         <img src={flagSrc} alt={flagAlt} width="36" height="24" class="flag" />
       </a>
-      <a href="/">
+      <a href={homeHref}>
         <img
           alt={siteName}
           src={logoSrc}
@@ -60,7 +61,7 @@ const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
       <slot />
     </main>
     <footer class="footer">
-      <a href="/">{homeLabel}</a>
+      <a href={homeHref}>{homeLabel}</a>
       {" | "}
       <a href={aboutHref}>{aboutLabel}</a>
     </footer>

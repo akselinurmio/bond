@@ -20,3 +20,5 @@ dist/
 # debug logs
 *.log
 .env*.local
+
+.vscode/
