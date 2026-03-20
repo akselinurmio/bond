@@ -5,12 +5,7 @@ export default defineConfig({
   site: "https://lemppari.bond",
   output: "server",
   trailingSlash: "never",
-  adapter: vercel({
-    isr: {
-      expiration: 60 * 5,
-      exclude: ["/api/vote"],
-    },
-  }),
+  adapter: vercel(),
   i18n: {
     locales: ["fi", "en"],
     defaultLocale: "fi",
