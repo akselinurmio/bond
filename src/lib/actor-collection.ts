@@ -14,7 +14,7 @@ const localizedActorSchema = z.object({
 
 export const actorCollectionSchema = z.object({
   order: z.number().int().nonnegative(),
-  profileImageUrl: z.string().url().nullable(),
+  profileImageUrl: z.url().nullable(),
   tmdbId: z.number().int(),
   locales: z.object({
     en: localizedActorSchema,

@@ -1,3 +1,9 @@
 export const bondActorTmdbIds = [
-  738, 14261, 10167, 10222, 10669, 517, 8784,
-] as const;
+  738, // Sean Connery
+  14261, // David Niven
+  10167, // George Lazenby
+  10222, // Roger Moore
+  10669, // Timothy Dalton
+  517, // Pierce Brosnan
+  8784, // Daniel Craig
+];
