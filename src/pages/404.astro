@@ -3,10 +3,17 @@ import LangLayout from "layouts/LangLayout.astro";
 
 const locale = Astro.currentLocale ?? "fi";
 const heading = locale === "fi" ? "Sivua ei löytynyt" : "Page was not found";
+
+const headers = Astro.request.headers;
+let debugInfo =
+  ["X-Forwarded-Host", "Host", "X-Forwarded-Proto"]
+    .map((key) => `${key}: ${headers.get(key)}`)
+    .join("\n") + `\nURL: ${Astro.url}`;
 ---
 
 <LangLayout title="404">
   <div>
     <h1>{heading}</h1>
+    <pre>{debugInfo}</pre>
   </div>
 </LangLayout>
