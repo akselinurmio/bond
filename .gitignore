@@ -1,24 +1,10 @@
-# dependencies
-node_modules/
-
-# production
-dist/
-
-# astro
 .astro/
-
-# misc
 .DS_Store
-*.pem
-
-# env files
 .env*
-
-# vercel
 .vercel
-
-# debug logs
-*.log
-.env*.local
-
 .vscode/
+*.log
+*.pem
+**/generated/
+dist/
+node_modules/
