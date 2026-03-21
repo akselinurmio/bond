@@ -1,4 +1,5 @@
 ---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
 import { getCollection, type CollectionEntry } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import { getBondActorUrl } from "lib/actor-routes";
@@ -24,6 +25,7 @@ const alternates = {
 };
 const backLabel =
   language === "fi" ? "Takaisin etusivulle" : "Back to the front page";
+const backHref = getAbsoluteLocaleUrl(language, "");
 
 function formatDate(isoDate: string) {
   return {
@@ -66,7 +68,7 @@ const filmographyLabel =
   }}
 >
   <article class="actor-page">
-    <a href="/" class="back-link">&larr; {backLabel}</a>
+    <a href={backHref} class="back-link">&larr; {backLabel}</a>
 
     <div class="actor-header">
       {

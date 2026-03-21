@@ -1,0 +1,44 @@
+import { defineMiddleware } from "astro:middleware";
+
+const englishDomainHost = "whoisyourfavorite.bond";
+const finnishOrigin = "https://lemppari.bond";
+const reservedPrefixes = ["/_astro/", "/_server-islands/", "/_actions/"];
+
+function shouldBypassRewrite(pathname: string): boolean {
+  if (reservedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
+    return true;
+  }
+
+  return /\.[a-z0-9]+$/i.test(pathname);
+}
+
+export const onRequest = defineMiddleware((context, next) => {
+  const { pathname, host } = context.url;
+
+  if (host === englishDomainHost && !shouldBypassRewrite(pathname)) {
+    if (pathname === "/en" || pathname.startsWith("/en/")) {
+      return context.redirect(
+        pathname === "/en" ? "/" : pathname.slice(3),
+        301,
+      );
+    }
+
+    const rewritePath = pathname.startsWith("/api/")
+      ? pathname
+      : pathname === "/"
+        ? "/en"
+        : `/en${pathname}`;
+
+    return next(
+      new Request(new URL(rewritePath, finnishOrigin), context.request),
+    );
+  }
+
+  const locale = context.currentLocale ?? "fi";
+
+  if (locale === "fi" && pathname === "/tietoa") {
+    return context.redirect("/about", 301);
+  }
+
+  return next();
+});

@@ -1,5 +1,5 @@
 ---
-import { getRelativeLocaleUrl } from "astro:i18n";
+import { getAbsoluteLocaleUrl } from "astro:i18n";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -21,10 +21,8 @@ const siteName = siteNames[locale];
 const pageTitle = title ? `${title} | ${siteName}` : siteName;
 
 const otherLocale = locale === "fi" ? "en" : "fi";
-const otherLocalePath = localePaths?.[otherLocale] ?? "";
-const otherLocaleUrl = otherLocalePath
-  ? getRelativeLocaleUrl(otherLocale, otherLocalePath)
-  : getRelativeLocaleUrl(otherLocale);
+const otherLocalePath = localePaths?.[otherLocale] || undefined;
+const otherLocaleUrl = getAbsoluteLocaleUrl(otherLocale, otherLocalePath);
 const flagSrc =
   locale === "fi"
     ? "/Animated-Flag-United-Kingdom.gif"
@@ -33,9 +31,9 @@ const flagAlt = locale === "fi" ? "In English" : "Suomeksi";
 const logoSrc = locale === "fi" ? "/logo_fi.svg" : "/logo_en.svg";
 const logoWidth = locale === "fi" ? "753" : "758";
 
-const homeHref = getRelativeLocaleUrl(locale);
+const homeHref = getAbsoluteLocaleUrl(locale);
 const homeLabel = locale === "fi" ? "Etusivu" : "Front page";
-const aboutHref = getRelativeLocaleUrl(locale, "about");
+const aboutHref = getAbsoluteLocaleUrl(locale, "about");
 const aboutLabel = locale === "fi" ? "Tietoa sivusta" : "About the page";
 ---
 
