@@ -11,3 +11,12 @@ export async function getVotesForAllBonds(): Promise<
     result.map(({ tmdbId, numberOfVotes }) => [tmdbId, numberOfVotes]),
   );
 }
+
+export async function getVotesForActor(tmdbId: number): Promise<number> {
+  const result = await prisma.actor.findUnique({
+    where: { tmdbId },
+    select: { numberOfVotes: true },
+  });
+
+  return result?.numberOfVotes ?? 0;
+}

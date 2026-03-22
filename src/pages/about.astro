@@ -1,14 +1,15 @@
 ---
 import { getAbsoluteLocaleUrl } from "astro:i18n";
 import LangLayout from "layouts/LangLayout.astro";
+import { stripTrailingSlash } from "lib/url-utils";
 ---
 
 <LangLayout
   title="Tietoa"
-  canonical={getAbsoluteLocaleUrl("fi", "about")}
+  canonical={stripTrailingSlash(getAbsoluteLocaleUrl("fi", "about"))}
   alternates={{
-    en: getAbsoluteLocaleUrl("en", "about"),
-    fi: getAbsoluteLocaleUrl("fi", "about"),
+    en: stripTrailingSlash(getAbsoluteLocaleUrl("en", "about")),
+    fi: stripTrailingSlash(getAbsoluteLocaleUrl("fi", "about")),
   }}
   localePaths={{
     en: "about",

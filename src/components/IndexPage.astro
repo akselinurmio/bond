@@ -21,10 +21,10 @@ const sortedActors = actors.sort(
 ---
 
 <LangLayout
-  canonical={getAbsoluteLocaleUrl(language, "")}
+  canonical={getAbsoluteLocaleUrl(language)}
   alternates={{
-    en: getAbsoluteLocaleUrl("en", ""),
-    fi: getAbsoluteLocaleUrl("fi", ""),
+    en: getAbsoluteLocaleUrl("en"),
+    fi: getAbsoluteLocaleUrl("fi"),
   }}
   localePaths={{
     en: "",
@@ -36,10 +36,7 @@ const sortedActors = actors.sort(
       sortedActors.map((actor) => {
         const localizedActor = actor.data.locales[language];
         const titleId = `bond-${actor.id}`;
-        const actorPath = getAbsoluteLocaleUrl(
-          language,
-          `bonds/${actor.data.tmdbId}/${localizedActor.slug}`,
-        );
+        const actorPath = `/bonds/${actor.data.tmdbId}/${localizedActor.slug}`;
 
         return (
           <article aria-labelledby={titleId}>
@@ -92,12 +89,6 @@ const sortedActors = actors.sort(
   .bond-link {
     color: inherit;
     display: block;
-    text-decoration: none;
-  }
-
-  .bond-link:hover,
-  .bond-link:focus-visible {
-    text-decoration: underline;
   }
 
   .bond-name {

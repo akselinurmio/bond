@@ -1,9 +1,11 @@
 ---
-import { getAbsoluteLocaleUrl } from "astro:i18n";
 import { getCollection, type CollectionEntry } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
+import VoteForm from "components/VoteForm.astro";
 import { getBondActorUrl } from "lib/actor-routes";
+import { getVotesForActor } from "lib/votes";
 import { Temporal } from "temporal-polyfill";
+import { stripTrailingSlash } from "lib/url-utils";
 
 interface Props {
   actor: CollectionEntry<"actors">;
@@ -14,18 +16,19 @@ const { actor, language } = Astro.props;
 const localizedActor = actor.data.locales[language];
 
 const title = localizedActor.name;
-const canonical = getBondActorUrl(
-  actor.data.tmdbId,
-  localizedActor.slug,
-  language,
+const canonical = stripTrailingSlash(
+  getBondActorUrl(actor.data.tmdbId, localizedActor.slug, language),
 );
 const alternates = {
-  en: getBondActorUrl(actor.data.tmdbId, actor.data.locales.en.slug, "en"),
-  fi: getBondActorUrl(actor.data.tmdbId, actor.data.locales.fi.slug, "fi"),
+  en: stripTrailingSlash(
+    getBondActorUrl(actor.data.tmdbId, actor.data.locales.en.slug, "en"),
+  ),
+  fi: stripTrailingSlash(
+    getBondActorUrl(actor.data.tmdbId, actor.data.locales.fi.slug, "fi"),
+  ),
 };
 const backLabel =
   language === "fi" ? "Takaisin etusivulle" : "Back to the front page";
-const backHref = getAbsoluteLocaleUrl(language, "");
 
 function formatDate(isoDate: string) {
   return {
@@ -39,6 +42,11 @@ function formatDate(isoDate: string) {
 
 const birthday = actor.data.birthday ? formatDate(actor.data.birthday) : null;
 const deathday = actor.data.deathday ? formatDate(actor.data.deathday) : null;
+const isDeceased = !!actor.data.deathday;
+const datesHtml = birthday
+  ? `(${!deathday ? (language === "fi" ? "s.\u00a0" : "born ") : ""}<time datetime="${birthday.iso}">${birthday.formatted}</time>${deathday ? ` \u2013 <time datetime="${deathday.iso}">${deathday.formatted}</time>` : ""})`
+  : null;
+const votes = await getVotesForActor(actor.data.tmdbId);
 const movieCreditsByTmdbId = new Map(
   localizedActor.movieCredits.map((credit) => [credit.tmdbId, credit]),
 );
@@ -48,14 +56,15 @@ const bondFilms = (await getCollection("bondFilms"))
     const credit = movieCreditsByTmdbId.get(film.data.tmdbId);
     return credit ? [{ credit, film }] : [];
   });
-const filmographyLabel =
+const filmographyLabel = language === "fi" ? "Elokuvat" : "Films";
+const introFilmCount =
   language === "fi"
     ? bondFilms.length === 1
-      ? "Esiintynyt yhdessä Bond-elokuvassa"
-      : `Esiintynyt ${bondFilms.length} Bond-elokuvassa`
+      ? "yhdessä Bond-elokuvassa"
+      : `${bondFilms.length} Bond-elokuvassa`
     : bondFilms.length === 1
-      ? "Appeared in one Bond film"
-      : `Appeared in ${bondFilms.length} Bond films`;
+      ? "one film"
+      : `${bondFilms.length} films`;
 ---
 
 <LangLayout
@@ -68,7 +77,7 @@ const filmographyLabel =
   }}
 >
   <article class="actor-page">
-    <a href={backHref} class="back-link">&larr; {backLabel}</a>
+    <a href="/" class="back-link">&larr; {backLabel}</a>
 
     <div class="actor-header">
       {
@@ -86,20 +95,25 @@ const filmographyLabel =
       }
       <div class="actor-info">
         <h1 translate="no">{localizedActor.name}</h1>
-        {
-          birthday && (
-            <p class="actor-lifespan">
-              {!deathday && (language === "fi" ? "s. " : "born ")}
-              <time datetime={birthday.iso}>{birthday.formatted}</time>
-              {deathday && (
-                <>
-                  {" \u{2013} "}
-                  <time datetime={deathday.iso}>{deathday.formatted}</time>
-                </>
-              )}
-            </p>
-          )
-        }
+        <p class="actor-intro">
+          <span translate="no">{localizedActor.name}</span>
+          {datesHtml && <Fragment set:html={` ${datesHtml}`} />}
+          {
+            language === "fi"
+              ? isDeceased
+                ? ` esiintyi James Bondina ${introFilmCount}.`
+                : ` on esiintynyt James Bondina ${introFilmCount}.`
+              : isDeceased
+                ? ` appeared as James Bond in ${introFilmCount}.`
+                : ` has appeared as James Bond in ${introFilmCount}.`
+          }
+        </p>
+        <VoteForm
+          actorId={actor.data.tmdbId}
+          actorName={localizedActor.name}
+          language={language}
+          votes={votes}
+        />
       </div>
     </div>
 
@@ -183,16 +197,15 @@ const filmographyLabel =
     display: grid;
     gap: 0.75rem;
     align-content: start;
+    text-wrap: pretty;
   }
 
   .actor-info h1 {
     margin: 0;
   }
 
-  .actor-lifespan {
+  .actor-intro {
     margin: 0;
-    font-style: italic;
-    opacity: 0.8;
   }
 
   .filmography h2 {
@@ -219,7 +232,7 @@ const filmographyLabel =
   .film-poster {
     grid-row: 1;
     display: block;
-    width: 100%;
+    max-width: 100%;
     height: auto;
     aspect-ratio: 2/3;
     object-fit: cover;

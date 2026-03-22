@@ -10,6 +10,7 @@ const { actorId, actorName, language, votes } = Astro.props;
 
 const lastName = actorName.trim().split(" ").at(-1);
 const buttonText = `${lastName} ${language === "fi" ? "on mun lemppari" : "is my favorite"}`;
+const votedText = `${lastName} ${language === "fi" ? "on sun lemppari Bond." : "is your favorite Bond."}`;
 const formattedVotes = `${votes.toLocaleString(language)} ${
   language === "fi"
     ? votes === 1
@@ -30,6 +31,7 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
   <p class="vote-count">{formattedVotes}</p>
   <input type="hidden" name="id" value={actorId} />
   <button type="submit">{buttonText}</button>
+  <output class="voted-message" hidden>{votedText}</output>
 </form>
 
 <script>
@@ -37,13 +39,17 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
 
   document.querySelectorAll<HTMLFormElement>(".vote-form").forEach((form) => {
     const button = form.querySelector("button")!;
+    const outputEl = form.querySelector<HTMLOutputElement>(".voted-message")!;
     const countEl = form.querySelector(".vote-count")!;
     const actorId = Number(form.dataset.actorId);
     const language = form.dataset.language;
     let votes = Number(form.dataset.initialVotes);
 
     $votedActor.subscribe((votedActor) => {
+      const votedForThis = votedActor === actorId;
       button.disabled = votedActor != null;
+      button.hidden = votedForThis;
+      outputEl.hidden = !votedForThis;
     });
 
     function renderVoteCount(count: number): void {
