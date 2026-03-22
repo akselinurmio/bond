@@ -31,6 +31,17 @@ const Person = z.object({
 });
 export type Person = z.infer<typeof Person>;
 
+const PersonImages = z.object({
+  profiles: z.array(
+    z.object({
+      file_path: z.string(),
+      width: z.number().int(),
+      height: z.number().int(),
+    }),
+  ),
+});
+export type PersonImages = z.infer<typeof PersonImages>;
+
 const MovieCreditCastEntry = z.object({
   id: z.number().int(),
   title: z.string(),
@@ -94,10 +105,7 @@ export async function getConfiguration(): Promise<Configuration> {
 
 export async function getPerson(id: number, language: string): Promise<Person> {
   const url = `${baseUrl}/3/person/${id}?language=${language}`;
-
-  const response = await fetch(url, {
-    headers: getHeaders(),
-  });
+  const response = await fetch(url, { headers: getHeaders() });
 
   if (!response.ok)
     throw new Error(`Actor fetch failed: ${await response.text()}`);
@@ -105,22 +113,13 @@ export async function getPerson(id: number, language: string): Promise<Person> {
   return Person.parse(await response.json());
 }
 
-const PersonImages = z.object({
-  profiles: z.array(
-    z.object({
-      file_path: z.string(),
-      width: z.number().int(),
-      height: z.number().int(),
-    }),
-  ),
-});
-export type PersonImages = z.infer<typeof PersonImages>;
-
 export async function getPersonImages(id: number): Promise<PersonImages> {
   const url = `${baseUrl}/3/person/${id}/images`;
   const response = await fetch(url, { headers: getHeaders() });
+
   if (!response.ok)
     throw new Error(`Person images fetch failed: ${await response.text()}`);
+
   return PersonImages.parse(await response.json());
 }
 
@@ -129,10 +128,7 @@ export async function getPersonMovieCredits(
   language: string,
 ): Promise<MovieCredits> {
   const url = `${baseUrl}/3/person/${id}/movie_credits?language=${language}`;
-
-  const response = await fetch(url, {
-    headers: getHeaders(),
-  });
+  const response = await fetch(url, { headers: getHeaders() });
 
   if (!response.ok)
     throw new Error(`Movie credits fetch failed: ${await response.text()}`);
@@ -145,15 +141,9 @@ async function getMovieListPage(
   language: string,
   page: number,
 ): Promise<MovieList> {
-  const params = new URLSearchParams({
-    language,
-    page: String(page),
-  });
+  const params = new URLSearchParams({ language, page: String(page) });
   const url = `${baseUrl}/3/list/${listId}?${params.toString()}`;
-
-  const response = await fetch(url, {
-    headers: getHeaders(),
-  });
+  const response = await fetch(url, { headers: getHeaders() });
 
   if (!response.ok)
     throw new Error(`Movie list fetch failed: ${await response.text()}`);
@@ -168,9 +158,7 @@ export async function getMovieList(
   const firstPage = await getMovieListPage(listId, language, 1);
   const totalPages = firstPage.total_pages ?? 1;
 
-  if (totalPages <= 1) {
-    return firstPage;
-  }
+  if (totalPages <= 1) return firstPage;
 
   const remainingPages = await Promise.all(
     Array.from({ length: totalPages - 1 }, (_, index) =>

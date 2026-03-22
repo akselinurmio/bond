@@ -1,0 +1,45 @@
+---
+import Top3Item from "components/Top3Item.astro";
+
+interface Props {
+  items: { name: string; actorPath: string; voteCount: number }[];
+  totalVotes: number;
+  language: "en" | "fi";
+}
+
+const { items, totalVotes, language } = Astro.props;
+---
+
+<section class="top3">
+  <h2>Top 3</h2>
+  <ol>
+    {
+      items.map(({ name, actorPath, voteCount }, index) => (
+        <Top3Item
+          rank={index + 1}
+          name={name}
+          actorPath={actorPath}
+          voteCount={voteCount}
+          totalVotes={totalVotes}
+          language={language}
+        />
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .top3 {
+    margin-block-start: 2rem;
+  }
+
+  .top3 ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+</style>

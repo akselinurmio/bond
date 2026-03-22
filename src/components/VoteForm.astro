@@ -28,7 +28,7 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
   data-initial-votes={votes}
   data-language={language}
 >
-  <p class="vote-count">{formattedVotes}</p>
+  <div class="vote-count">{formattedVotes}</div>
   <input type="hidden" name="id" value={actorId} />
   <button type="submit">{buttonText}</button>
   <output class="voted-message" hidden>{votedText}</output>
@@ -106,3 +106,12 @@ const formattedVotes = `${votes.toLocaleString(language)} ${
     });
   });
 </script>
+
+<style>
+  .vote-form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+    align-items: flex-start;
+  }
+</style>

@@ -3,6 +3,7 @@ import { getAbsoluteLocaleUrl } from "astro:i18n";
 import { getCollection } from "astro:content";
 import LangLayout from "layouts/LangLayout.astro";
 import VoteForm from "components/VoteForm.astro";
+import Top3 from "components/Top3.astro";
 import { getVotesForAllBonds } from "lib/votes";
 
 interface Props {
@@ -18,6 +19,11 @@ const [actors, votes] = await Promise.all([
 const sortedActors = actors.sort(
   (actorA, actorB) => actorA.data.order - actorB.data.order,
 );
+const totalVotes = [...votes.values()].reduce((sum, v) => sum + v, 0);
+const top3 = [...actors]
+  .map((actor) => ({ actor, voteCount: votes.get(actor.data.tmdbId) ?? 0 }))
+  .sort((a, b) => b.voteCount - a.voteCount)
+  .slice(0, 3);
 ---
 
 <LangLayout
@@ -67,6 +73,19 @@ const sortedActors = actors.sort(
       })
     }
   </section>
+
+  <Top3
+    items={top3.map(({ actor, voteCount }) => {
+      const { name, slug } = actor.data.locales[language];
+      return {
+        name,
+        actorPath: `/bonds/${actor.data.tmdbId}/${slug}`,
+        voteCount,
+      };
+    })}
+    totalVotes={totalVotes}
+    language={language}
+  />
 </LangLayout>
 
 <style>
@@ -74,7 +93,7 @@ const sortedActors = actors.sort(
     display: grid;
     column-gap: 0.5rem;
     row-gap: 2rem;
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
     justify-content: center;
     align-content: center;
   }
@@ -92,7 +111,7 @@ const sortedActors = actors.sort(
   }
 
   .bond-name {
-    font-size: 1.25rem;
+    font-size: 1rem;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
   }

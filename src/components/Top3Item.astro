@@ -1,0 +1,50 @@
+---
+interface Props {
+  rank: number;
+  name: string;
+  actorPath: string;
+  voteCount: number;
+  totalVotes: number;
+  language: "en" | "fi";
+}
+
+const { rank, name, actorPath, voteCount, totalVotes, language } = Astro.props;
+const pct = (totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0).toFixed(2);
+---
+
+<li>
+  <span>{rank}. <a href={actorPath} translate="no">{name}</a></span>
+  <div
+    class="bar"
+    role="meter"
+    aria-valuenow={voteCount}
+    aria-valuemin="0"
+    aria-valuemax={totalVotes}
+    aria-label={`${name}: ${voteCount} ${language === "fi" ? "ääntä" : "votes"}`}
+  >
+    <div class="bar-fill" style={{ width: `${pct}%` }}>{voteCount}</div>
+  </div>
+</li>
+
+<style>
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .bar {
+    border: 2px solid var(--color-fg);
+    background: var(--color-bg);
+  }
+
+  .bar-fill {
+    background: var(--color-fg);
+    color: white;
+    font-size: 0.75rem;
+    text-align: right;
+    padding-right: 0.25rem;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+</style>
