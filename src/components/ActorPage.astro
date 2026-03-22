@@ -143,7 +143,9 @@ const introFilmCount =
                   )}
                   <strong class="film-title">{localizedFilm.title}</strong>
                   {film.data.releaseYear ? (
-                    <div class="film-year">{film.data.releaseYear}</div>
+                    <div class="film-year">
+                      <time>{film.data.releaseYear}</time>
+                    </div>
                   ) : null}
                   {credit.character ? (
                     <div class="film-character">{credit.character}</div>
