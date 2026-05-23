@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Actor" ALTER COLUMN "lastVotedAt" SET DATA TYPE TIMESTAMPTZ(3);
