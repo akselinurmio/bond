@@ -10,5 +10,5 @@ datasource db {
 model Actor {
   tmdbId        Int       @id
   numberOfVotes Int
-  lastVotedAt   DateTime?
+  lastVotedAt   DateTime? @db.Timestamptz(3)
 }
