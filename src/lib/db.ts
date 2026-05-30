@@ -1,9 +1,10 @@
-import { PrismaClient } from "generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { neon } from "@neondatabase/serverless";
+import { Kysely } from "kysely";
+import { NeonDialect } from "kysely-neon";
+import type { Database } from "./types";
 
-const adapter = new PrismaPg({
-  connectionString: import.meta.env.POSTGRES_URL,
-  ssl: true,
+export const db = new Kysely<Database>({
+  dialect: new NeonDialect({
+    neon: neon(import.meta.env.POSTGRES_URL),
+  }),
 });
-
-export const prisma = new PrismaClient({ adapter });

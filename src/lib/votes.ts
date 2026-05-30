@@ -1,22 +1,22 @@
-import { prisma } from "./db";
+import { db } from "./db";
 
 export async function getVotesForAllBonds(): Promise<
   ReadonlyMap<number, number>
 > {
-  const result = await prisma.actor.findMany({
-    select: { tmdbId: true, numberOfVotes: true },
-  });
+  const rows = await db
+    .selectFrom("Actor")
+    .select(["tmdbId", "numberOfVotes"])
+    .execute();
 
-  return new Map(
-    result.map(({ tmdbId, numberOfVotes }) => [tmdbId, numberOfVotes]),
-  );
+  return new Map(rows.map(({ tmdbId, numberOfVotes }) => [tmdbId, numberOfVotes]));
 }
 
 export async function getVotesForActor(tmdbId: number): Promise<number> {
-  const result = await prisma.actor.findUnique({
-    where: { tmdbId },
-    select: { numberOfVotes: true },
-  });
+  const row = await db
+    .selectFrom("Actor")
+    .select("numberOfVotes")
+    .where("tmdbId", "=", tmdbId)
+    .executeTakeFirst();
 
-  return result?.numberOfVotes ?? 0;
+  return row?.numberOfVotes ?? 0;
 }

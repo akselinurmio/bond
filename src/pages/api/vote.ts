@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { bondActorTmdbIds } from "lib/constants";
-import { prisma } from "lib/db";
+import { db } from "lib/db";
 
 const idSchema = z
   .string()
@@ -20,18 +20,17 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const actor = await prisma.actor.upsert({
-    where: { tmdbId: id },
-    update: {
-      numberOfVotes: { increment: 1 },
-      lastVotedAt: new Date(),
-    },
-    create: {
-      tmdbId: id,
-      numberOfVotes: 1,
-      lastVotedAt: new Date(),
-    },
-  });
+  const result = await db
+    .insertInto("Actor")
+    .values({ tmdbId: id, numberOfVotes: 1, lastVotedAt: new Date() })
+    .onConflict((oc) =>
+      oc.column("tmdbId").doUpdateSet((eb) => ({
+        numberOfVotes: eb("Actor.numberOfVotes", "+", 1),
+        lastVotedAt: new Date(),
+      }))
+    )
+    .returning("numberOfVotes")
+    .executeTakeFirstOrThrow();
 
-  return Response.json({ success: true, votes: actor.numberOfVotes });
+  return Response.json({ success: true, votes: result.numberOfVotes });
 };

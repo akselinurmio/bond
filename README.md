@@ -13,3 +13,11 @@ vercel link
 ```bash
 npm run dev
 ```
+
+## Database
+
+```bash
+npx kysely migrate latest --environment local   # apply pending migrations
+npx kysely migrate make <name> --environment local  # create a new migration
+npx kysely migrate list --environment local     # list migration status
+```

@@ -3,7 +3,6 @@
   "compilerOptions": {
     "paths": {
       "components/*": ["./src/components/*"],
-      "generated/*": ["./src/generated/*"],
       "layouts/*": ["./src/layouts/*"],
       "lib/*": ["./src/lib/*"],
       "styles/*": ["./src/styles/*"]
