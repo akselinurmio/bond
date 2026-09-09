@@ -15,7 +15,7 @@
     "kysely": "^0.28.17",
     "kysely-neon": "^2.0.2",
     "nanostores": "^1.4.2",
-    "temporal-polyfill": "^1.0.1",
+    "temporal-polyfill": "^1.0.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
