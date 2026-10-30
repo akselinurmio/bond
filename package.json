@@ -14,7 +14,7 @@
     "astro": "^7.4.2",
     "kysely": "^0.28.17",
     "kysely-neon": "^2.0.2",
-    "nanostores": "^1.5.3",
+    "nanostores": "^1.5.5",
     "temporal-polyfill": "^1.0.5",
     "zod": "^4.6.7"
   },
